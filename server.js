@@ -1,22 +1,25 @@
-const express = require('express')
-const path = require("path");
-const app = express()
+const express = require('express');
+const next = require('next');
 
-// #############################################################################
-// This configures static hosting for files in /public that have the extensions
-// listed in the array.
-var options = {
-  dotfiles: 'ignore',
-  etag: false,
-  extensions: ['htm', 'html','css','js','ico','jpg','jpeg','png','svg'],
-  index: ['index.html'],
-  maxAge: '1m',
-  redirect: false
-}
-app.use(express.static('build', options))
+const dev = process.env.NODE_ENV !== 'production';
+const app = next({ dev });
+const handle = app.getRequestHandler();
 
-const port = process.env.PORT || 3000
+app.prepare().then(() => {
+  const server = express();
 
-app.listen(port, () => {
-  console.log(`React app listening at http://localhost:${port}`)
-})
+  // Your custom routes or middleware
+  server.get('/custom-route', (req, res) => {
+    return app.render(req, res, '/custom', req.query);
+  });
+
+  // Default route handling
+  server.all('*', (req, res) => {
+    return handle(req, res);
+  });
+
+  server.listen(process.env.PORT || 3000, (err) => {
+    if (err) throw err;
+    console.log('> Ready on http://localhost:3000');
+  });
+});
