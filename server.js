@@ -1,19 +1,22 @@
-const next = require('next')
-const http = require('http')
+const express = require('express')
+const path = require("path");
+const app = express()
 
-// init next
-const app = next(__dirname)
-const handle = app.getRequestHandler()
+// #############################################################################
+// This configures static hosting for files in /public that have the extensions
+// listed in the array.
+var options = {
+  dotfiles: 'ignore',
+  etag: false,
+  extensions: ['htm', 'html','css','js','ico','jpg','jpeg','png','svg'],
+  index: ['index.html'],
+  maxAge: '1m',
+  redirect: false
+}
+app.use(express.static('build', options))
 
-// init normal http server
-// createServer(handle).listen(process.env.PORT || 3000)
+const port = process.env.PORT || 3000
 
-
-
-// Create a local server to receive data from
-const server = http.createServer((req, res) => {
-  res.removeHeader('Transfer-Encoding');
-  handle(req,res)
-});
-
-server.listen(process.env.PORT || 3000);
+app.listen(port, () => {
+  console.log(`React app listening at http://localhost:${port}`)
+})
